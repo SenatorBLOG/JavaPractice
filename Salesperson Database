@@ -1,0 +1,156 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+class Salesperson {
+    private int id;
+    private double sales;
+
+    public Salesperson(int id, double sales) {
+        this.id = id;
+        this.sales = sales;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public double getSales() {
+        return sales;
+    }
+
+    public void setSales(double sales) {
+        this.sales = sales;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Sales: " + sales;
+    }
+}
+
+public class SalespersonDatabase {
+    private static final int MAX_SIZE = 20;
+    private static Salesperson[] salesPeople = new Salesperson[MAX_SIZE];
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        while (true) {
+            System.out.println("Choose an option: (1) Add (2) Delete (3) Change (4) Exit");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    addRecord();
+                    break;
+                case 2:
+                    deleteRecord();
+                    break;
+                case 3:
+                    changeRecord();
+                    break;
+                case 4:
+                    System.out.println("Exiting program.");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+            displayDatabase();
+        }
+    }
+
+    private static void addRecord() {
+        int count = getRecordCount();
+        if (count >= MAX_SIZE) {
+            System.out.println("The database is full.");
+            return;
+        }
+
+        System.out.println("Enter Salesperson ID: ");
+        int id = scanner.nextInt();
+
+        if (findRecord(id) != -1) {
+            System.out.println("ID already exists.");
+            return;
+        }
+
+        System.out.println("Enter Sales amount: ");
+        double sales = scanner.nextDouble();
+
+        for (int i = 0; i < MAX_SIZE; i++) {
+            if (salesPeople[i] == null) {
+                salesPeople[i] = new Salesperson(id, sales);
+                System.out.println("Salesperson added.");
+                break;
+            }
+        }
+    }
+
+    private static void deleteRecord() {
+        if (getRecordCount() == 0) {
+            System.out.println("The database is empty.");
+            return;
+        }
+
+        System.out.println("Enter Salesperson ID to delete: ");
+        int id = scanner.nextInt();
+        int index = findRecord(id);
+
+        if (index == -1) {
+            System.out.println("ID not found.");
+        } else {
+            salesPeople[index] = null;
+            System.out.println("Salesperson deleted.");
+        }
+    }
+
+    private static void changeRecord() {
+        if (getRecordCount() == 0) {
+            System.out.println("The database is empty.");
+            return;
+        }
+
+        System.out.println("Enter Salesperson ID to change: ");
+        int id = scanner.nextInt();
+        int index = findRecord(id);
+
+        if (index == -1) {
+            System.out.println("ID not found.");
+        } else {
+            System.out.println("Enter new sales amount: ");
+            double sales = scanner.nextDouble();
+            salesPeople[index].setSales(sales);
+            System.out.println("Sales updated.");
+        }
+    }
+
+    private static int findRecord(int id) {
+        for (int i = 0; i < MAX_SIZE; i++) {
+            if (salesPeople[i] != null && salesPeople[i].getId() == id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int getRecordCount() {
+        int count = 0;
+        for (Salesperson person : salesPeople) {
+            if (person != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static void displayDatabase() {
+        Salesperson[] sortedList = Arrays.stream(salesPeople)
+                .filter(person -> person != null)
+                .sorted((a, b) -> Integer.compare(a.getId(), b.getId()))
+                .toArray(Salesperson[]::new);
+
+        System.out.println("\nDatabase Records:");
+        for (Salesperson person : sortedList) {
+            System.out.println(person);
+        }
+    }
+}
